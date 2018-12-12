@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="UTF-8">
+	<link rel="icon" href="icon.png">
+	<title>Shopify | Cart</title>
+	<style type="text/css">
+		body{
+			padding: 0px;
+			margin: 0px;
+		}
+		h1{
+			text-align: center;
+			width: 100%;
+		}
+		#toolbar{
+			background-color: black;
+			height: 10vh;
+			width: 100%;
+			margin-bottom: 10vh;
+			position: relative;
+		}
+		#toolbar img{
+			height: 100%;
+			position: absolute;
+		}
+		#toolbar button{
+			height: 8vh;
+			width: 8vh;
+			background-color: white;
+			position: absolute;
+			top: 1vh;
+			border-style: solid;
+			border-color: yellow;
+			border-width: 0px;
+			background-size: 100% auto;
+			background-position: center;
+			background-repeat: no-repeat;
+		}
+		#toolbar button:hover{
+			border-width: 2px;
+		}
+		#logout{
+			right: 2vh;
+			background-image: url("/wdpro/logout.png");
+		}
+		#explore{
+			right: 12vh;
+			background-image: url("/wdpro/explore.png");
+		}
+		#cart{
+			width: 100%;
+			height: 100%;
+			position: relative;
+		}
+		#cart-item{
+			width: 90%;
+			left: 5%;
+			height: 8vh;
+			background-color: black;
+			position: relative;
+			margin-bottom: 2vh;
+		}
+		#order-btn{
+			width: 90%;
+			left: 5%;
+			height: 8vh;
+			background-color: green;
+			position: relative;
+			border-width: 0px;
+			border-radius: 4vh;
+			margin-bottom: 2vh;
+			font-size: 3vh;
+		}
+		#order-btn:hover{
+			background-color: yellow;
+		}
+		#order-btn:active{
+			background-color: red;
+		}
+		#cart-item button{
+			height: 6vh;
+			width: 6vh;
+			background-color: black;
+			background-position: center;
+			background-repeat: no-repeat;
+			background-size: 100% auto;
+			color: white;
+			top: 1vh;
+			border-style: solid;
+			border-width: 2px;
+			border-color: white;
+			position: absolute;
+		}
+		#cart-item button:hover{
+			border-color:yellow;
+		}
+		#cart-item button:active{
+			border-color:red;
+		}
+		#cart-item label{
+			height: 6vh;
+			background-color: black;
+			color: white;
+			border-width: 0px;
+			position: absolute;
+		}
+		#pcount{
+			width: 6vh;
+			font-size: 4vh;
+			right: 8vh;
+		}
+		#pname{
+			left: 1vh;
+			font-size: 4vh;
+		}
+		#inc{
+			background-image: url("/wdpro/plus.png");
+			right:15vh; 
+		}
+		#dec{
+			background-image: url("/wdpro/minus.png");
+			right: 1vh;
+		}
+	</style>
+	<script type="text/javascript">
+		window.onload=function(){
+			var con=new XMLHttpRequest();
+			var text="<h1>Your cart is empty.<h1>";
+			con.onreadystatechange=function(){
+				if(this.readyState==4 && this.status==200){
+					if(this.responseText=="")
+						document.getElementById("cart").innerHTML=text;
+					else
+						document.getElementById("cart").innerHTML=this.responseText;		
+				}
+			}
+			con.open("GET","/wdpro/order.php?action=getcartitems",true);
+			con.send();
+		}
+		var inc=function(el){
+			var con=new XMLHttpRequest();
+			var childs=el.parentElement.childNodes;
+			//alert(childs[0].innerHTML+"|"+childs[2].innerHTML);
+			con.onreadystatechange=function(){
+				if(this.status==200 && this.readyState==4){
+					if(this.responseText=="1")
+						childs[2].innerHTML=""+(parseInt(childs[2].innerHTML)+1);
+				}
+			}
+			con.open("GET","/wdpro/order.php?action=addtocart&p_name="+childs[0].innerHTML,true);
+			con.send();
+		}
+		var dec=function(el){
+			var con=new XMLHttpRequest();
+			var childs=el.parentElement.childNodes;
+			//alert(childs[0].innerHTML+"|"+childs[2].innerHTML);
+			con.onreadystatechange=function(){
+				if(this.status==200 && this.readyState==4){
+					if(this.responseText=="1")
+						childs[2].innerHTML=""+(parseInt(childs[2].innerHTML)-1);
+					if(childs[2].innerHTML=="0")
+						el.parentElement.style.display="none";
+				}
+			}
+			con.open("GET","/wdpro/order.php?action=removefromcart&p_name="+childs[0].innerHTML,true);
+			con.send();
+		}
+		var placeorder=function(){
+			var con=new XMLHttpRequest();
+			con.onreadystatechange=function(){
+				if(this.status==200 && this.readyState==4){
+					if(this.responseText[0]=="R"){
+						alert("ORDER PLACED\nBill: "+this.responseText);
+						window.location.assign("/wdpro/cart.html");
+					}
+					else if(this.responseText=="0"){
+						alert("EMPTY CART");
+					}
+					else{
+						console.log(this.responseText);
+					}
+				}
+			}
+			con.open("GET","/wdpro/order.php?action=placeorder",true);
+			con.send();
+		}
+	</script>
+</head>
+<body>
+	<div id="toolbar">
+		<img src="/wdpro/logo.png" onclick="window.location.assign('/wdpro/');" title="Home">
+		<button id="logout" onclick="window.location.assign('/wdpro/?lgt=true');"></button>
+		<button id="explore" onclick="window.location.assign('/wdpro/explore.php');"></button>
+	</div>
+	<div id="cart">
+		
+	</div>
+	<button id="order-btn" onclick="placeorder();"> O R D E R </button>
+</body>
+</html>
